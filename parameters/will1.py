@@ -11,10 +11,8 @@ become_moving_threshold = 10
 num_frames_cooldown = 100
 debug = False
 
-color_ranges = [
-np.array([[[158,90,66],[186,255,255]]]),
-np.array([[[11,50,125],[47,133,255]]])
-]
+red_range = np.array([[[158,90,66],[186,255,255]]])
+white_range = np.array([[[11,50,125],[47,133,255]]])
 
 hole_1 = np.array([236,397])
 hole_2 = np.array([267,7])               

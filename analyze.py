@@ -1,5 +1,5 @@
 #####################pool reader
-from ballTracker import Color
+from state import Color
 import cv2
 import utils
 '''

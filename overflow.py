@@ -1,5 +1,25 @@
- import pyttsx
 
+
+
+import pyttsx
+
+'''
+TODO
+-sort balls with options
+-remove all magic values
+-rename windows appropriately
+-place the score
+-optimization
+-class for contours?/everything?
+-mask,video in parameters
+
+
+-investigate contours
+'''
+'''
+-shot chart, makes and misses
+-new age, bump recognition
+'''
 class ShotCommenter():
     def __init__(self):
         self.engine = pyttsx.init()
@@ -45,4 +65,66 @@ class ShotReader(object):
         #print 'no movement???????????????????\n\n\n\n\n\n\n\nwhhhhhhhhhhhhhhhhhhhhhaaaaaaaaaaaaaaaaaaattttttttttttttttttttt\n\n\n\n\n\n\n\n'
         return 1012345678901234567890
         
+
+
+########################################################################
+'''#vanished_permanently
+            for ball in balls:
+                if not ball.scored:
+                    #print ball
+                    pos = ball.position
+                    x,y = ball.getPositionInts()
+                    rect = mask_green[y-3:y+3,x-3:x+3]
+                    #print rect
+                    #frame = cv2.rectangle(frame,(x-3,y+3),(x+3,y-3),(255,0,0),-1)
+                    #mask_green = cv2.rectangle(mask_green,(x-5,y+5),(x+5,y-5),(255,0,0),-1)
+
+                    #print ball.id
+                    #print pos
+                    #print rect
+                    count = 0
+                    for row in rect:
+                        for pixel in row:
+                            if pixel > 100:
+                                count+=1
+                    #print count
+                    #print '-----'
+                    #print 
+                    if count/36 > .5:
+                        ball.vanished_permanently = True
+                    else:
+                        ball.vanished_permanently = False
+                '''
+'''    
+class TempBall(Ball):
+    def __init__(self, pos):
+        self.id = 11
+        self.position = pos
+        self.position_history = []
+    def updatePosition(self,point):
+        Base.updatePosition(self,point)
+        self.position_history.append(point)
+'''
+
+
+        all_balls = balls[Color.RED][:]
+        all_balls.extend(balls[Color.WHITE])
         
+        
+        
+                '''
+        reader = PoolReader()
+        #comment thread
+        comment_queue = Queue.Queue()
+        t = threading.Thread(target=doComment)
+        thread_continue = True
+        t.start()
+        '''
+         #reader = PoolReader(parameters)
+       
+            if frameNum > 100:#magic
+                sendCoords(reader,all_balls)
+        reader.drawShots(table_frame,parameters)
+        if is_recording:
+            for i in range(300):
+                out.write(table_frame)       
