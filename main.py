@@ -5,6 +5,7 @@ import importlib
 from detect import Detector
 from state import State
 from track import Tracker
+import automation
  
 def main(args, debug, recording_path):
     video_path = args[0]
@@ -12,12 +13,19 @@ def main(args, debug, recording_path):
     parameters = importlib.import_module(args[2])
     is_recording = recording_path != None
     
+    
     if not parameters.debug:
         parameters.debug = debug
     try:
-        cap = cv2.VideoCapture(video_path)
-        for i in range(10): #magic
+        if is_recording:
+            cap = cv2.VideoCapture(-1)
+        else:
+            cap = cv2.VideoCapture(video_path)
+        
+        ret,frame = None,None
+        for i in range(256): #magic
             ret, frame = cap.read()
+        parameters.red_range,parameters.white_range = automation.main(frame)
         table_frame = frame.copy()
         if is_recording:
             out = cv2.VideoWriter(recording_path+".avi",-1, 30.0, (len(frame[0]),len(frame)))##magic
@@ -42,6 +50,7 @@ def main(args, debug, recording_path):
             state.draw(final_display_frame) 
             if is_recording:
                 out.write(final_display_frame)
+                cv2.imshow('frame',final_display_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         cap.release()
