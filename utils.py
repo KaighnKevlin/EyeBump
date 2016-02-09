@@ -6,3 +6,6 @@ def manhattanDistance(p1,p2):
     return abs(p1[0]-p2[0]) + abs(p1[1]-p2[1])
 def getIntTuple(float_tuple):
     return (int(float_tuple[0]),int(float_tuple[1]))
+def updateBallPositions(state,ball_dict):
+    for ball,pos in ball_dict.items():
+        state.getBall(ball).updatePosition(pos)

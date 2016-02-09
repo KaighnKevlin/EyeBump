@@ -28,7 +28,7 @@ class State(object):
                         self.score[color] += 1
     
                     
-    def draw(self,frame):
+    def draw(self,frame,frame_number=None):
         font = cv2.FONT_HERSHEY_SIMPLEX#magic
         for color in [Color.RED,Color.WHITE]:
             balls = self.red_balls if color == Color.RED else self.white_balls
@@ -36,6 +36,7 @@ class State(object):
                 if ball.scored:
                     continue
                 pos = ball.getPositionInts()
+
                 cv2.putText(frame,str(ball.id),(pos[0]+6,pos[1]-10), font, .7,(255,255,255),2,cv2.LINE_AA)
                 #cv2.putText(frame,str(ball.moving),pos, font, .7,(255,255,255),2,cv2.LINE_AA)
                 #cv2.putText(frame,str(ball.vanished_frames),pos, font, .7,(255,255,255),3,cv2.LINE_AA)
@@ -43,8 +44,26 @@ class State(object):
 
                 color = (200,0,0) if ball.moving else (0,255,0) if ball.vanished_frames == 0 else (0,255,255)#magic
                 img = cv2.circle(frame,pos,self.drawn_circle_radius,color,2)
+            if frame_number!=None:
+                cv2.putText(frame,str(frame_number),(550,50), font, .7,(255,255,255),2,cv2.LINE_AA)#magic
             cv2.putText(frame, str(self.score[Color.WHITE])+' - '+str(self.score[Color.RED]),(450,450), font, .7,(255,255,255),2,cv2.LINE_AA)#magic
             cv2.imshow('final', img)
+    def getBall(self,id):
+        if id < 0 or id > 9:
+            return None
+        if id < 5:
+            return self.red_balls[id]
+        else:
+            return self.white_balls[id-5]
+    def getBalls(self):
+        ret = self.red_balls
+        ret.extend(white_balls)
+        return ret
+    def ballsState(self):
+        d = {}
+        for i in range(10):
+            d[i] = self.getBall(i).getPositionInts()
+        return d
 class Ball(object):
     def __init__(self, id, color, parameters):
         self.id = id

@@ -13,7 +13,7 @@ class Contour(object):
         self.circle = Circle(x,y,r)
         self.ratio = (self.area/(self.circle.r**2*math.pi))
         self.group = -1
-def main(image):
+def main(image,debug=False):
     def ratio(contour):
         (x,y),r = cv2.minEnclosingCircle(contour)
         area = cv2.contourArea(contour)
@@ -77,8 +77,9 @@ def main(image):
     
     
     edges = cv2.Canny(image,200,300)
-    cv2.imshow('edges',edges)
-    cv2.imshow('image',image)
+    if debug:
+        cv2.imshow('edges',edges)
+        cv2.imshow('image',image)
     contour_frame = image.copy()
     _, contours, _ = cv2.findContours(edges.copy(),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     contours_tuples = [Contour(c) for c in contours]
@@ -110,8 +111,9 @@ def main(image):
         for set in sets:
             paint_frame = image.copy()
             cv2.drawContours(paint_frame,[x.contour for x in set],-1,(0,255,0),2)
-            cv2.imshow('painting',paint_frame)
-            cv2.waitKey(0)
+            if debug:
+                cv2.imshow('painting',paint_frame)
+                cv2.waitKey(0)
     contours = [c.contour for c in contours_tuples]
     '''
     for i,tuple in enumerate(contours_tuples):
@@ -131,16 +133,18 @@ def main(image):
         for tuple in s:
             contour_frame2 = cv2.circle(contour_frame2,tuple.circle.intCenter(),int(tuple.circle.r/2),colorFun(s0),-1)
         #contour_frame2 = cv2.drawContours(contour_frame2,[x.contour for x in s],-1,colorFun(s0),-1)
-
-    cv2.imshow('contours',contour_frame)
-    cv2.imshow('contours2',contour_frame2)
-    cv2.waitKey(0)
+    
+    if debug:
+        cv2.imshow('contours',contour_frame)
+        cv2.imshow('contours2',contour_frame2)
+        cv2.waitKey(0)
     
     white_mask = cv2.inRange(contour_frame2, (0,0,255),(0,0,255) )
-    cv2.imshow('white_mask',white_mask)
     red_mask = cv2.inRange(contour_frame2, (0,255,0),(0,255,0))
-    cv2.imshow('red_mask',red_mask)
-    cv2.waitKey(0)
+    if debug:
+        cv2.imshow('white_mask',white_mask)
+        cv2.imshow('red_mask',red_mask)
+        cv2.waitKey(0)
     
     gaussblur = cv2.bilateralFilter(image.copy(),9,75,75)
     hsv = cv2.cvtColor(gaussblur, cv2.COLOR_BGR2HSV)
@@ -152,9 +156,10 @@ def main(image):
     kernel = np.ones((5,5),np.uint8)
     red_image = cv2.erode(red_image,kernel,iterations = 2)
     '''
-    cv2.imshow('white_image',white_image)
-    cv2.imshow('red_image',red_image)
-    cv2.waitKey(0)
+    if debug:
+        cv2.imshow('white_image',white_image)
+        cv2.imshow('red_image',red_image)
+        cv2.waitKey(0)
     
     def getRange(image):
         acc = []
@@ -181,10 +186,11 @@ def main(image):
     r_lower,r_upper = getRange(red_image)
     w_lower,w_upper = getRange(white_image)
     reds = cv2.inRange(hsv, r_lower,r_upper)
-    cv2.imshow('reds',reds)
     whites = cv2.inRange(hsv, w_lower,w_upper)
-    cv2.imshow('whites',whites)
-    cv2.waitKey(0)
+    if debug:
+        cv2.imshow('reds',reds)
+        cv2.imshow('whites',whites)
+        cv2.waitKey(0)
     
     return np.array([[[r_lower,r_upper]],[[w_lower,w_upper]]])
     
