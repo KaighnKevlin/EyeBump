@@ -25,7 +25,7 @@ def main(args, debug, recording_path):
         ret,frame = None,None
         for i in range(256): #magic
             ret, frame = cap.read()
-        parameters.red_range,parameters.white_range = automation.main(frame)
+        parameters.red_range,parameters.white_range = automation.findColorRanges(frame)
         table_frame = frame.copy()
         if is_recording:
             out = cv2.VideoWriter(recording_path+".avi",-1, 30.0, (len(frame[0]),len(frame)))##magic

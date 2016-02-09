@@ -13,7 +13,7 @@ class Contour(object):
         self.circle = Circle(x,y,r)
         self.ratio = (self.area/(self.circle.r**2*math.pi))
         self.group = -1
-def main(image,debug=False):
+def findColorRanges(image,debug=False):
     def ratio(contour):
         (x,y),r = cv2.minEnclosingCircle(contour)
         area = cv2.contourArea(contour)
@@ -64,8 +64,6 @@ def main(image,debug=False):
                         cv2.imshow('painting',paint_frame)
                         cv2.waitKey(0)'''
         return sets
-    #image_path = args[0]
-    #image = cv2.imread(image_path)
     
     gray = image.copy()
     gray = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)
@@ -237,4 +235,6 @@ def main(image,debug=False):
 
     
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    image_path = sys.args[1]
+    image = cv2.imread(image_path)
+    findColorRanges(image)

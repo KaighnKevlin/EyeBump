@@ -13,8 +13,7 @@ state = None
 current_positions = None
 text_file = None
 auto_recalc = False
-def main(video_path):
-    cap = cv2.VideoCapture(video_path)
+def annotate(cap,text_file_path):
     frameNum = 0
     cap.read()
     _, first_frame = cap.read()
@@ -22,14 +21,14 @@ def main(video_path):
     
     #need to massively change below lines
     parameters = importlib.import_module("parameters.will1")
-    #parameters.red_range,parameters.white_range = automation.main(first_frame,debug=True)
+    #parameters.red_range,parameters.white_range = automation.findColorRanges(first_frame,debug=True)
     detector = Detector(mask,parameters)
     global state
     state = State(parameters)
     global current_positions
     current_positions = {i:(-1,-1) for i in range(10)}
     global text_file
-    text_file = open(getFileName(video_path),"w")
+    text_file = open(text_file_path,"w")
     
     
     circles = detector.detect(first_frame)
@@ -113,8 +112,8 @@ def getFileName(video_path):
     return "annotations/"+name+".txt"
 
 if __name__ == "__main__":
-    print sys.argv
     args = sys.argv[1:]
     if len(args) != 1:
         raise ValueError("Invalid number of arguments.")
-    main(args[0])
+    cap = cv2.VideoCapture(args[0])
+    annotate(cap,getFileName(args[0]))
