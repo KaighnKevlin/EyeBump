@@ -146,43 +146,44 @@ def findColorRanges(image,debug=False):
     
     gaussblur = cv2.bilateralFilter(image.copy(),9,75,75)
     hsv = cv2.cvtColor(gaussblur, cv2.COLOR_BGR2HSV)
-    
+    '''
     red_image = cv2.bitwise_and(hsv,hsv, mask = red_mask)
     white_image = cv2.bitwise_and(hsv,hsv, mask = white_mask)
-
-    '''
+    
+    
     kernel = np.ones((5,5),np.uint8)
     red_image = cv2.erode(red_image,kernel,iterations = 2)
-    '''
+    
     if debug:
         cv2.imshow('white_image',white_image)
         cv2.imshow('red_image',red_image)
         cv2.waitKey(0)
-    
-    def getRange(image):
-        acc = []
-        for row in image:
-            acc.extend([x for x in row if not any([x[0]==0,x[1]==0,x[2]==0])])
-        minb = min(x[0] for x in acc)
-        print minb
-        ming = min(x[1] for x in acc)
-        print ming
-        minr = min(x[2] for x in acc)
-        print minr
-        maxb = max(x[0] for x in acc)
-        print maxb
-        maxg = max(x[1] for x in acc)
-        print maxg
-        maxr = max(x[2] for x in acc)
-        print maxr
-        a = 20
-        #min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(image)
-        #print min_val,max_val
-        return (int(minb-a),int(ming-a),int(minr-a)),(int(maxb+a),int(maxg+a),int(maxr+a))
-    
-
-    r_lower,r_upper = getRange(red_image)
-    w_lower,w_upper = getRange(white_image)
+    '''
+    def getRange(image, mask):
+        def getRangeChannel(channel):
+            hist = cv2.calcHist([image],[channel],mask,[256],[0,256])
+            lower_bool = False
+            lower = None
+            upper = None
+            for i,value in enumerate(hist):
+                if value == 0:
+                    if i > 0 and hist[i-1] != 0 and lower_bool:
+                        upper = i-1
+                else:
+                    if not lower_bool:
+                        lower = i
+                        lower_bool = True
+            return lower,upper
+        lowers = []
+        uppers = []
+        for i in [0,1,2]:
+            lower,upper = getRangeChannel(i)
+            lowers.append(lower)
+            uppers.append(upper)
+        print lowers,uppers
+        return np.array([l-20 for l in lowers]),np.array([u+20 for u in uppers])
+    r_lower,r_upper = getRange(hsv,red_mask)
+    w_lower,w_upper = getRange(hsv,white_mask)
     reds = cv2.inRange(hsv, r_lower,r_upper)
     whites = cv2.inRange(hsv, w_lower,w_upper)
     if debug:
