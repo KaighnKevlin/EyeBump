@@ -1,6 +1,7 @@
 import cv2
 import traceback, sys
 import importlib
+import utils
 
 from detect import Detector
 from state import State
@@ -49,7 +50,7 @@ def main(video_path, debug, recording_path):
             state.draw(final_display_frame) 
             if is_recording:
                 out.write(final_display_frame)
-                cv2.imshow('frame',final_display_frame)
+                utils.imshow('frame',final_display_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         cap.release()
