@@ -1,5 +1,6 @@
 from state import Color
 import cv2
+import utils
 
 class Detector(object):
     def __init__(self,mask,parameters):
@@ -38,14 +39,14 @@ class Detector(object):
         kernel = np.ones((2,2),np.uint8)
         erosion = cv2.erode(final_mask,kernel,iterations = 1)
         #dilation = cv2.dilate(erosion,kernel,iterations = 1)
-        cv2.imshow('erosion', erosion)
-        #cv2.imshow('dilation of erosion', dilation)
+        utils.imshow('erosion', erosion)
+        #utils.imshow('dilation of erosion', dilation)
         '''
         _, contours, _ = cv2.findContours(final_mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         
         if self.debug:
             img = cv2.drawContours(contour_frame, contours, -1, (0,255,0), 2)
-            cv2.imshow('contours', contour_frame)
+            utils.imshow('contours', contour_frame)
         
         return contours
         
@@ -54,8 +55,8 @@ class Detector(object):
         gaussblur = cv2.bilateralFilter(frame_removedbumpers,9,75,75)
         hsv = cv2.cvtColor(gaussblur, cv2.COLOR_BGR2HSV)	
         if self.debug:
-            cv2.imshow('hsv_blurred_frame',hsv)
-            cv2.imshow('frame_removed_bumpers',frame_removedbumpers)
+            utils.imshow('hsv_blurred_frame',hsv)
+            utils.imshow('frame_removed_bumpers',frame_removedbumpers)
         return hsv
         
 
@@ -74,7 +75,7 @@ class Detector(object):
                 
             if self.debug:
                 cv2.circle(frame_circles,(int(x),int(y)),self.drawn_circle_radius,(0,255,0),2)
-                cv2.imshow('contour circles',frame_circles)
+                utils.imshow('contour circles',frame_circles)
             good_circles.append(circle)
         return good_circles
 class Circle(object):

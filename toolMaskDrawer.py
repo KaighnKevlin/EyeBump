@@ -4,11 +4,12 @@ Tool to draw a mask to mask out parts of the image that aren't the bumper pool t
 import cv2
 import numpy as np
 import sys
+import utils
 
 drawing = False # true if mouse is pressed
 mode = 0 # if True, draw rectangle. Press 'm' to toggle to curve
 ix,iy = -1,-1
-img = np.zeros((512,512,3), np.uint8)
+img = np.zeros((1024,1024,3), np.uint8)
 
 
 # mouse callback function
@@ -59,9 +60,9 @@ def main(img_path,image=None,mask_path_prefix=None):
         img = image
     cv2.namedWindow('image')
     cv2.setMouseCallback('image',draw_circle)
-
+    
     while(1):
-        cv2.imshow('image',img)
+        utils.imshow('image',img)
         k = cv2.waitKey(1) & 0xFF
         if k == ord('m'):
             mode +=1

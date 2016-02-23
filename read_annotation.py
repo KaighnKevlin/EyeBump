@@ -30,7 +30,7 @@ def main(video_path):
                 next_frame,ball_positions = processLine(line)
                 utils.updateBallPositions(state,ball_positions)
         state.draw(frame)
-        cv2.imshow('final',frame)
+        utils.imshow('final',frame)
         if cv2.waitKey(0) == ord('q'):
             break
 def processLine(line):

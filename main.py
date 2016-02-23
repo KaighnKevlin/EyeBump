@@ -7,10 +7,9 @@ from state import State
 from track import Tracker
 import automation
  
-def main(args, debug, recording_path):
-    video_path = args[0]
-    mask_path = args[1]
-    parameters = importlib.import_module(args[2])
+def main(video_path, debug, recording_path):
+    mask_path = "masks/will1-mask.png"
+    parameters = importlib.import_module("parameters.will1")
     is_recording = recording_path != None
     
     
@@ -72,8 +71,8 @@ if __name__ == "__main__":
     debug = False
     recording_path = None
     if '-h' in args:
-        print "arguments: video_path mask_path parameter_module is_recording_boolean" 
-        print "Example: python main.py videos/will_table_1.avi masks/will1-mask.png parameters.will1"
+        print "arguments: video_path" 
+        print "Example: python main.py videos/will_table_1.avi"
         sys.exit()
     if '-d' in args:
         print 'Entering debug mode.'
@@ -87,6 +86,6 @@ if __name__ == "__main__":
         recording_path = args[index+1]
         args.pop(index)
         args.pop(index)
-    if len(args) != 3:
+    if len(args) != 1:
         raise ValueError("Invalid number of arguments.")
-    main(sys.argv[1:],debug,recording_path)
+    main(sys.argv[1],debug,recording_path)

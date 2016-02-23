@@ -61,7 +61,7 @@ def findColorRanges(image,debug=False):
                             '''
                         paint_frame = image.copy()
                         cv2.drawContours(paint_frame,[x.contour for x in [c1,c2,c3]],-1,(0,255,0),2)
-                        cv2.imshow('painting',paint_frame)
+                        utils.imshow('painting',paint_frame)
                         cv2.waitKey(0)'''
         return sets
     
@@ -69,15 +69,16 @@ def findColorRanges(image,debug=False):
     gray = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)
     new_gray = cv2.equalizeHist(gray)
     res = np.hstack((gray,new_gray))
-    #cv2.imshow('res',res)
+    #utils.imshow('res',res)
     #cv2.waitKey(0)
     
     
     
     edges = cv2.Canny(image,200,300)
     if debug:
-        cv2.imshow('edges',edges)
-        cv2.imshow('image',image)
+        utils.imshow('edges',edges)
+        utils.imshow('image',image)
+        cv2.waitKey(0)
     contour_frame = image.copy()
     _, contours, _ = cv2.findContours(edges.copy(),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     contours_tuples = [Contour(c) for c in contours]
@@ -110,7 +111,7 @@ def findColorRanges(image,debug=False):
             paint_frame = image.copy()
             cv2.drawContours(paint_frame,[x.contour for x in set],-1,(0,255,0),2)
             if debug:
-                cv2.imshow('painting',paint_frame)
+                utils.imshow('painting',paint_frame)
                 cv2.waitKey(0)
     contours = [c.contour for c in contours_tuples]
     '''
@@ -118,7 +119,7 @@ def findColorRanges(image,debug=False):
         color = colorFun(tuple)
         contour_frame = image.copy()
         contour_frame = cv2.drawContours(contour_frame, contours, i, color, 2)
-        cv2.imshow('contours', contour_frame)
+        utils.imshow('contours', contour_frame)
         cv2.waitKey(0)
         '''
     contour_frame = image.copy()
@@ -133,15 +134,15 @@ def findColorRanges(image,debug=False):
         #contour_frame2 = cv2.drawContours(contour_frame2,[x.contour for x in s],-1,colorFun(s0),-1)
     
     if debug:
-        cv2.imshow('contours',contour_frame)
-        cv2.imshow('contours2',contour_frame2)
+        utils.imshow('contours',contour_frame)
+        utils.imshow('contours2',contour_frame2)
         cv2.waitKey(0)
     
     white_mask = cv2.inRange(contour_frame2, (0,0,255),(0,0,255) )
     red_mask = cv2.inRange(contour_frame2, (0,255,0),(0,255,0))
     if debug:
-        cv2.imshow('white_mask',white_mask)
-        cv2.imshow('red_mask',red_mask)
+        utils.imshow('white_mask',white_mask)
+        utils.imshow('red_mask',red_mask)
         cv2.waitKey(0)
     
     gaussblur = cv2.bilateralFilter(image.copy(),9,75,75)
@@ -155,8 +156,8 @@ def findColorRanges(image,debug=False):
     red_image = cv2.erode(red_image,kernel,iterations = 2)
     
     if debug:
-        cv2.imshow('white_image',white_image)
-        cv2.imshow('red_image',red_image)
+        utils.imshow('white_image',white_image)
+        utils.imshow('red_image',red_image)
         cv2.waitKey(0)
     '''
     def getRange(image, mask):
@@ -187,8 +188,8 @@ def findColorRanges(image,debug=False):
     reds = cv2.inRange(hsv, r_lower,r_upper)
     whites = cv2.inRange(hsv, w_lower,w_upper)
     if debug:
-        cv2.imshow('reds',reds)
-        cv2.imshow('whites',whites)
+        utils.imshow('reds',reds)
+        utils.imshow('whites',whites)
         cv2.waitKey(0)
     
     return np.array([[[r_lower,r_upper]],[[w_lower,w_upper]]])
@@ -214,7 +215,7 @@ def findColorRanges(image,debug=False):
     for point in p0:
         print (point[0][0],point[0][1])
         feature_frame = cv2.circle(feature_frame,(point[0][0],point[0][1]),10,(255,0,0),1)
-    cv2.imshow('features',feature_frame)
+    utils.imshow('features',feature_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     '''
@@ -230,7 +231,7 @@ def findColorRanges(image,debug=False):
         # draw the center of the circle
         edges_copy = cv2.circle(edges_copy,(i[0],i[1]),2,(0,0,255),3)
 
-    cv2.imshow('detected circles',edges_copy)
+    utils.imshow('detected circles',edges_copy)
     '''
     cv2.destroyAllWindows()
 

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+import utils
 
 
 def main(args):
@@ -15,7 +16,7 @@ def main(args):
         if(frameNum<=1590):
             continue
         
-        cv2.imshow('frame',frame)
+        utils.imshow('frame',frame)
         key = cv2.waitKey(0)
         if key == ord('c'):
             print 'image ' + str(frameNum) + ' captured!'

@@ -49,28 +49,27 @@ def annotate(cap,text_file_path):
         write(frameNum,state.ballsState())
     cv2.destroyAllWindows()
 def handleInput(detector):
+    cv2.setMouseCallback('final',draw_circle)
+    global id, auto_recalc
+    if id != None and auto_recalc:
+        circles_d = detector.detect(frame)
+        circles = circles_d[Color.RED] if id < 5 else circles_d[Color.WHITE]
+        circles_dists = [utils.manhattanDistance(c.center(),state.getBall(id).position) for c in circles]
+        match = circles[circles_dists.index(min(circles_dists))]
+        state.getBall(id).updatePosition(match.center())
+        redraw()
     while(True):
         k = cv2.waitKey(0)
-        if k == ord('m'):           
-            cv2.setMouseCallback('final',draw_circle)
         if k == ord('r'):
-            cv2.setMouseCallback('final',no_callback)
-            global id
-            circles_d = detector.detect(frame)
-            circles = circles_d[Color.RED] if id < 5 else circles_d[Color.WHITE]
-            circles_dists = [utils.manhattanDistance(c.center(),state.getBall(id).position) for c in circles]
-            match = circles[circles_dists.index(min(circles_dists))]
-            state.getBall(id).updatePosition(match.center())
-            redraw()
+            auto_recalc = not auto_recalc
+            #cv2.setMouseCallback('final',no_callback)
+            
         if k == ord('g'):
-            cv2.setMouseCallback('final',no_callback)
+            #cv2.setMouseCallback('final',no_callback)
             return True
-        if k == ord('s'):
+        if k >= 48 and k <= 57:
             global id
-            id = cv2.waitKey(0)
-            while(id < 48 or id > 57):
-                id = cv2.waitKey(0)
-            id = int(chr(id))
+            id = int(chr(k))
         if k == 33:#!
             text_file.close()
             return False
@@ -104,7 +103,7 @@ def draw_circle(event,x,y,flags,param):
 def redraw():
     new_frame = frame.copy()
     state.draw(new_frame)
-    cv2.imshow('final',new_frame)
+    utils.imshow('final',new_frame)
 def getFileName(video_path):
     name = video_path.split('.')[0]
     if '/' in list(name):

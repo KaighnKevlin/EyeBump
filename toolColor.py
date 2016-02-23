@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+import utils
 
 def nothing(x):
     pass
@@ -31,10 +32,10 @@ def main(argv):
         
         hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, lower, upper)
-        cv2.imshow('hsv',hsv)
-        cv2.imshow('mask',mask)
+        utils.imshow('hsv',hsv)
+        utils.imshow('mask',mask)
         res = cv2.bitwise_and(img,img,mask=mask)
-        cv2.imshow('bars',img)
+        utils.imshow('bars',img)
         
 
     cv2.destroyAllWindows()

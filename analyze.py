@@ -76,7 +76,7 @@ class PoolReader(object):
                 draw_frame = cv2.circle(draw_frame,utils.getIntTuple(shot.starting_point),parameters.drawn_circle_radius,color_dict[shot.ball.color],2)
             else:
                 draw_frame = cv2.circle(draw_frame,utils.getIntTuple(shot.starting_point),parameters.drawn_circle_radius/3,color_dict[shot.ball.color],2)
-        cv2.imshow('shot chart', draw_frame)
+        utils.imshow('shot chart', draw_frame)
         cv2.waitKey(0)
 class Ball(object):
     def __init__(self, id, color):

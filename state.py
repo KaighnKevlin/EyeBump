@@ -47,7 +47,7 @@ class State(object):
             if frame_number!=None:
                 cv2.putText(frame,str(frame_number),(550,50), font, .7,(255,255,255),2,cv2.LINE_AA)#magic
             cv2.putText(frame, str(self.score[Color.WHITE])+' - '+str(self.score[Color.RED]),(450,450), font, .7,(255,255,255),2,cv2.LINE_AA)#magic
-            cv2.imshow('final', img)
+            utils.imshow('final', img)
     def getBall(self,id):
         if id < 0 or id > 9:
             return None
