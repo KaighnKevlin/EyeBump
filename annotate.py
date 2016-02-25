@@ -7,13 +7,32 @@ import importlib
 from state import State,Color
 import utils
 
+class BallInfo(object):
+    def __init__(self,ball):
+        self.ball = ball
+        self.position = ball.position
+        self.hidden = False
+    def flagged(self):
+        ret = utils.manhattanDistance(self.position,self.ball.position) != 0 or self.hidden != self.ball.hidden
+        self.position = self.ball.position
+        self.hidden = self.ball.hidden
+        return ret
+    def getWrite(self):
+        hidden = "H" if self.ball.hidden else ""
+        return str(self.ball.id)+"^"+str(self.ball.getPositionInts())+ hidden
+
+
 frame = None
+frameNum = None
 id = None
 state = None
-current_positions = None
+detector = None
+
+ball_infos = None
 text_file = None
 auto_recalc = False
 def annotate(cap,text_file_path):
+    global frameNum
     frameNum = 0
     cap.read()
     _, first_frame = cap.read()
@@ -22,11 +41,14 @@ def annotate(cap,text_file_path):
     #need to massively change below lines
     parameters = importlib.import_module("parameters.will1")
     #parameters.red_range,parameters.white_range = automation.findColorRanges(first_frame,debug=True)
+    global detector
     detector = Detector(mask,parameters)
     global state
     state = State(parameters)
-    global current_positions
-    current_positions = {i:(-1,-1) for i in range(10)}
+    #global current_positions
+    #current_positions = {i:(-1,-1) for i in range(10)}
+    global ball_infos
+    ball_infos = [BallInfo(state.getBall(i)) for i in range(10)]
     global text_file
     text_file = open(text_file_path,"w")
     
@@ -37,61 +59,68 @@ def annotate(cap,text_file_path):
 
         balls = state.red_balls if color == Color.RED else state.white_balls
         for i,ball in enumerate(balls):
+            if i >= len(colored_circles):
+                break
             ball.updatePosition(colored_circles[i].center())
             
     while(cap.isOpened()):
-        global frame
+        global frame, frameNum
         ret, frame = cap.read()	
         frameNum += 1
-        state.draw(frame.copy(),frame_number=frameNum)
+        redraw()
         if not handleInput(detector):
             break
-        write(frameNum,state.ballsState())
+        write()
     cv2.destroyAllWindows()
 def handleInput(detector):
     cv2.setMouseCallback('final',draw_circle)
     global id, auto_recalc
+    for i in range(10):
+        ball = state.getBall(i)
+        ball.updatePosition(ball.position)
     if id != None and auto_recalc:
-        circles_d = detector.detect(frame)
-        circles = circles_d[Color.RED] if id < 5 else circles_d[Color.WHITE]
-        circles_dists = [utils.manhattanDistance(c.center(),state.getBall(id).position) for c in circles]
-        match = circles[circles_dists.index(min(circles_dists))]
-        state.getBall(id).updatePosition(match.center())
-        redraw()
+        recalc(id)
     while(True):
         k = cv2.waitKey(0)
         if k == ord('r'):
             auto_recalc = not auto_recalc
             #cv2.setMouseCallback('final',no_callback)
-            
+        if k == ord('f'):
+            recalc(id)
+        if k == ord('u'):
+            state.drawn_circle_radius += 1
+        if k == ord('d'):
+            if state.drawn_circle_radius <= 0:
+                continue
+            state.drawn_circle_radius -= 1
         if k == ord('g'):
             #cv2.setMouseCallback('final',no_callback)
+            redraw()
             return True
+        if k == ord('h'):
+            ball = state.getBall(id)
+            ball.hidden = not ball.hidden
         if k >= 48 and k <= 57:
             global id
             id = int(chr(k))
         if k == 33:#!
             text_file.close()
             return False
-                
-def write(frame_num, ball_positions):
+        redraw()
+def write():
     first = True
-    for i in range(10):
-        if utils.manhattanDistance(ball_positions[i],current_positions[i]) != 0:
+    for info in ball_infos:
+        if info.flagged():
             if first:
                 first = False
-                text_file.write(str(frame_num)+':')
+                text_file.write(str(frameNum)+':')
             else:
                 text_file.write("|")
-            ball_pos_split = str(ball_positions[i]).split()
-            ball_coordinates = ball_pos_split[0]+ball_pos_split[1]
-            text_file.write(str(i)+"^"+ball_coordinates)
-            print str(frame_num),str(i),"^",ball_coordinates
-            current_positions[i] = ball_positions[i]
+            print str(frameNum)+":"+info.getWrite()
+            text_file.write(info.getWrite())
     if not first:
-        text_file.write('\n')
-            
-            
+        text_file.write('\n')         
+
 def no_callback(event,x,y,flags,param):
     pass
 def draw_circle(event,x,y,flags,param):
@@ -102,8 +131,17 @@ def draw_circle(event,x,y,flags,param):
         redraw()
 def redraw():
     new_frame = frame.copy()
-    state.draw(new_frame)
-    utils.imshow('final',new_frame)
+    global frameNum
+    state.draw(new_frame,frame_number=frameNum,line_width=1)
+    cv2.imshow('final',new_frame)
+def recalc(ball_id):
+    global detector
+    circles_d = detector.detect(frame)
+    circles = circles_d[Color.RED] if ball_id < 5 else circles_d[Color.WHITE]
+    circles_dists = [utils.manhattanDistance(c.center(),state.getBall(ball_id).position) for c in circles]
+    match = circles[circles_dists.index(min(circles_dists))]
+    state.getBall(ball_id).updatePosition(match.center())
+    redraw()
 def getFileName(video_path):
     name = video_path.split('.')[0]
     if '/' in list(name):

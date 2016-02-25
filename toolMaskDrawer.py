@@ -51,7 +51,8 @@ def make_mask(img):
     
     
     cv2.waitKey(0)
-
+def nothing():
+    pass
 def main(img_path,image=None,mask_path_prefix=None):
     global img, mode
     if image == None:
@@ -74,7 +75,7 @@ def main(img_path,image=None,mask_path_prefix=None):
             return mask
         elif k == 27:
             break
-
+    cv2.setMouseCallback('image',nothing)
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

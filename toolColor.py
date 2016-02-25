@@ -9,6 +9,7 @@ def nothing(x):
 def main(argv):
     img_path = argv[0]
     img = cv2.imread(img_path)
+    cv2.namedWindow('bars',cv2.WINDOW_NORMAL)
     cv2.createTrackbar('H','bars',0,255,nothing)
     cv2.createTrackbar('S','bars',0,255,nothing)
     cv2.createTrackbar('V','bars',0,255,nothing)
@@ -30,12 +31,14 @@ def main(argv):
         upper = np.array([h2,s2,v2])
         
         
-        hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+        #hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+        gaussblur = cv2.bilateralFilter(img,9,75,75)
+        hsv = cv2.cvtColor(gaussblur, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, lower, upper)
         utils.imshow('hsv',hsv)
         utils.imshow('mask',mask)
         res = cv2.bitwise_and(img,img,mask=mask)
-        utils.imshow('bars',img)
+        utils.imshow('bars',res)
         
 
     cv2.destroyAllWindows()

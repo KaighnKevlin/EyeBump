@@ -28,8 +28,10 @@ class State(object):
                         self.score[color] += 1
     
                     
-    def draw(self,frame,frame_number=None):
+    def draw(self,frame,frame_number=None,line_width=2):
         font = cv2.FONT_HERSHEY_SIMPLEX#magic
+        if line_width <= 0:
+            line_width = 2
         for color in [Color.RED,Color.WHITE]:
             balls = self.red_balls if color == Color.RED else self.white_balls
             for ball in balls:
@@ -42,12 +44,12 @@ class State(object):
                 #cv2.putText(frame,str(ball.vanished_frames),pos, font, .7,(255,255,255),3,cv2.LINE_AA)
                         
 
-                color = (200,0,0) if ball.moving else (0,255,0) if ball.vanished_frames == 0 else (0,255,255)#magic
-                img = cv2.circle(frame,pos,self.drawn_circle_radius,color,2)
+                color = (0,255,255) if ball.hidden else (200,0,0) if ball.moving else (0,255,0)#magic
+                img = cv2.circle(frame,pos,self.drawn_circle_radius,color,line_width)
             if frame_number!=None:
                 cv2.putText(frame,str(frame_number),(550,50), font, .7,(255,255,255),2,cv2.LINE_AA)#magic
             cv2.putText(frame, str(self.score[Color.WHITE])+' - '+str(self.score[Color.RED]),(450,450), font, .7,(255,255,255),2,cv2.LINE_AA)#magic
-            utils.imshow('final', img)
+            cv2.imshow('final', img)
     def getBall(self,id):
         if id < 0 or id > 9:
             return None
@@ -70,6 +72,7 @@ class Ball(object):
         self.position = (-1,-1)
         self.scored = False
         self.vanished_frames = 0
+        self.hidden = False
         self.moving = False
         self.moving_timer = 0
         self.color = color
@@ -79,7 +82,7 @@ class Ball(object):
     def updatePosition(self, point):                    
         self.moving_timer -= 1
         if (self.moving and utils.manhattanDistance(self.position,point) >= self.stay_moving_threshold) or (not self.moving and utils.manhattanDistance(self.position,point) > self.become_moving_threshold):
-            self.moving_timer = 5
+            #self.moving_timer = 5
             self.moving = True
             self.position = point
         else:

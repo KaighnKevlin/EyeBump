@@ -13,8 +13,6 @@ def main(args):
     while(cap.isOpened()):
         ret, frame = cap.read()	
         frameNum= frameNum+ 1
-        if(frameNum<=1590):
-            continue
         
         utils.imshow('frame',frame)
         key = cv2.waitKey(0)
