@@ -6,10 +6,12 @@ import cv2
 import importlib
 from state import State,Color
 import utils
-from annotate import getFileName
+import annotate
 
 def main(video_path):
-    file = open(getFileName(video_path))
+    file = open(annotate.getFileName(video_path))
+
+
     cap = cv2.VideoCapture(video_path)
     frameNum = 0
     cap.read()
@@ -19,18 +21,22 @@ def main(video_path):
     file_done = False
     parameters = importlib.import_module("parameters.will1")
     state = State(parameters)
+    
+    line = file.readline()
+    next_frame,ball_positions = processLine(line)
     while(cap.isOpened()):
         frameNum += 1
         _, frame = cap.read()
-        if frameNum > next_frame and not file_done:
-            line = file.readline()
+        if frameNum >= next_frame and not file_done:
             if line == '':
                 file_done = True
             if not file_done:
-                next_frame,ball_positions = processLine(line)
                 utils.updateBallPositions(state,ball_positions)
+                next_frame,ball_positions = processLine(line)
+            line = file.readline()
+
         state.draw(frame)
-        utils.imshow('final',frame)
+        cv2.imshow('final',frame)
         if cv2.waitKey(0) == ord('q'):
             break
 def processLine(line):
