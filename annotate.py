@@ -6,6 +6,7 @@ import cv2
 import importlib
 from state import State,Color
 import utils
+import read_annotation
 
 class BallInfo(object):
     def __init__(self,ball):
@@ -27,7 +28,7 @@ frameNum = None
 id = None
 state = None
 detector = None
-
+cont = False
 ball_infos = None
 text_file = None
 auto_recalc = False
@@ -50,29 +51,50 @@ def annotate(cap,text_file_path):
     global ball_infos
     ball_infos = [BallInfo(state.getBall(i)) for i in range(10)]
     global text_file
-    text_file = open(text_file_path,"w")
+    initial_frameNum = 0
+    if cont:
+        read_file = open(text_file_path,"r")
+        remember_line = ''
+        d = {}
+        while(True):
+            line = read_file.readline()
+            if line == '':
+                break
+            remember_line = line
+            _, d = read_annotation.processLine(line)
+            for k,v in d.items():
+                print k,v
+                ball_infos[k].ball.position = v
+                ball_infos[k].position = v
+        initial_frameNum = int(remember_line.split(':')[0])
+        text_file = open(text_file_path,"a")
+    else:
+        text_file = open(text_file_path,"w")
     
     
     circles = detector.detect(first_frame)
-    for color in [Color.RED,Color.WHITE]:
-        colored_circles = sorted(circles[color], key=lambda c: c.x)#copied code from tracker v3
+    if not cont:
+        for color in [Color.RED,Color.WHITE]:
+            colored_circles = sorted(circles[color], key=lambda c: c.x)#copied code from tracker v3
 
-        balls = state.red_balls if color == Color.RED else state.white_balls
-        for i,ball in enumerate(balls):
-            if i >= len(colored_circles):
-                break
-            ball.updatePosition(colored_circles[i].center())
-            
+            balls = state.red_balls if color == Color.RED else state.white_balls
+            for i,ball in enumerate(balls):
+                if i >= len(colored_circles):
+                    break
+                ball.position = colored_circles[i].center()
+    while(initial_frameNum!=frameNum):
+        ret,frame = cap.read()
+        frameNum+=1
     while(cap.isOpened()):
         global frame, frameNum
         ret, frame = cap.read()	
         frameNum += 1
         redraw()
-        if not handleInput(detector):
+        if not handleInput():
             break
         write()
     cv2.destroyAllWindows()
-def handleInput(detector):
+def handleInput():
     cv2.setMouseCallback('final',draw_circle)
     global id, auto_recalc
     for i in range(10):
@@ -127,7 +149,7 @@ def draw_circle(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDOWN:
         global state, id
         ball = state.getBall(id)
-        ball.updatePosition((x,y))
+        ball.position = (x,y)
         redraw()
 def redraw():
     new_frame = frame.copy()
@@ -140,7 +162,7 @@ def recalc(ball_id):
     circles = circles_d[Color.RED] if ball_id < 5 else circles_d[Color.WHITE]
     circles_dists = [utils.manhattanDistance(c.center(),state.getBall(ball_id).position) for c in circles]
     match = circles[circles_dists.index(min(circles_dists))]
-    state.getBall(ball_id).updatePosition(match.center())
+    state.getBall(ball_id).position = match.center()
     redraw()
 def getFileName(video_path):
     name = video_path.split('.')[0]
@@ -150,6 +172,9 @@ def getFileName(video_path):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if '-c' in args:
+        args.remove('-c')
+        cont = True
     if len(args) != 1:
         raise ValueError("Invalid number of arguments.")
     cap = cv2.VideoCapture(args[0])
