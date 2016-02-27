@@ -35,7 +35,7 @@ def main(video_path):
                 next_frame,ball_positions = processLine(line)
             line = file.readline()
 
-        state.draw(frame)
+        state.draw(frame,frame_number=frameNum)
         cv2.imshow('final',frame)
         if cv2.waitKey(0) == ord('q'):
             break
@@ -50,6 +50,8 @@ def processLine(line):
         ballsplit = ball_info.split("^")
         ball_num = int(ballsplit[0])
         coordinates_string = ballsplit[1].split(",")
+        if 'H' in coordinates_string[1]:
+            coordinates_string[1] = coordinates_string[1][:len(coordinates_string[1])-1]
         ball_pos = (int(coordinates_string[0][1:]),int(coordinates_string[1][:len(coordinates_string[1].strip('\n'))-1]))
         d[ball_num] = ball_pos
     return frameNum,d
