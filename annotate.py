@@ -25,7 +25,8 @@ class BallInfo(object):
 
 frame = None
 frameNum = None
-id = None
+active_ids = set([])
+active_id = None
 state = None
 detector = None
 cont = False
@@ -96,19 +97,20 @@ def annotate(cap,text_file_path):
     cv2.destroyAllWindows()
 def handleInput():
     cv2.setMouseCallback('final',draw_circle)
-    global id, auto_recalc
+    global active_ids, auto_recalc, active_id
     for i in range(10):
         ball = state.getBall(i)
         ball.updatePosition(ball.position)
-    if id != None and auto_recalc:
-        recalc(id)
+    if len(active_ids)!=0 and auto_recalc:
+        [recalc(id) for id in active_ids]
     while(True):
         k = cv2.waitKey(0)
         if k == ord('r'):
             auto_recalc = not auto_recalc
-            #cv2.setMouseCallback('final',no_callback)
         if k == ord('f'):
-            recalc(id)
+            [recalc(id) for id in active_ids]
+        if k == ord('p'):
+            recalc(active_id)
         if k == ord('u'):
             state.drawn_circle_radius += 1
         if k == ord('d'):
@@ -116,15 +118,22 @@ def handleInput():
                 continue
             state.drawn_circle_radius -= 1
         if k == ord('g'):
-            #cv2.setMouseCallback('final',no_callback)
             redraw()
             return True
         if k == ord('h'):
-            ball = state.getBall(id)
+            ball = state.getBall(active_id)
             ball.hidden = not ball.hidden
         if k >= 48 and k <= 57:
-            global id
             id = int(chr(k))
+            active_id = id
+        if k == ord('a'):
+            k = cv2.waitKey(0) 
+            if k >= 48 and k <= 57:
+                id = int(chr(k))
+                if id in active_ids:
+                    active_ids.discard(id)
+                else:
+                    active_ids.add(id)
         if k == 33:#!
             text_file.close()
             return False
@@ -147,14 +156,17 @@ def no_callback(event,x,y,flags,param):
     pass
 def draw_circle(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDOWN:
-        global state, id
-        ball = state.getBall(id)
+        global state, active_id
+        ball = state.getBall(active_id)
         ball.position = (x,y)
         redraw()
 def redraw():
     new_frame = frame.copy()
-    global frameNum
+    global active_id, active_ids 
     state.draw(new_frame,frame_number=frameNum,line_width=1)
+    font = cv2.FONT_HERSHEY_SIMPLEX#magic
+    cv2.putText(new_frame,str(active_ids),(50,50), font, .7,(255,255,255),2,cv2.LINE_AA)
+    cv2.putText(new_frame,str(active_id),(50,150), font, .7,(255,255,255),2,cv2.LINE_AA)
     cv2.imshow('final',new_frame)
 def recalc(ball_id):
     global detector
