@@ -134,7 +134,7 @@ def handleInput():
                     active_ids.discard(id)
                 else:
                     active_ids.add(id)
-        if k == 33:#!
+        if k == ord('!'):#!
             text_file.close()
             return False
         redraw()
